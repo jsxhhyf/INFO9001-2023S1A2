@@ -1,0 +1,3 @@
+- 08/05/2023 Mon 22:30 - 01:00 (2.5h)
+  - fix bug in name.py that can't replace 'fat cat'
+  - implement installation() function in setup.py
