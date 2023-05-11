@@ -6,6 +6,7 @@ SID:
 Unikey:
 '''
 import os.path
+import sys
 from datetime import datetime
 from shutil import copy
 
@@ -13,16 +14,6 @@ ROOT_DIR = "/Users/philliphu/Documents/TUTOR/INFO9001/2023S1/Assignment2/"
 
 
 # you can make more functions or global read-only variables here if you please!
-
-def log(message: str) -> None:
-    """
-    log message with required timestamp
-    Parameters
-    ----------
-    message : the message to display
-    """
-    pass
-
 
 def is_valid_dirpath(path: str) -> bool:
     """
@@ -82,7 +73,15 @@ def logging(logs: list, date: str, time: str) -> None:
                     time must be in the format HH_MM_SS as seen in the specs
                     (ex: 14_31_27 for 14:31:27).
     '''
-    pass
+
+    # 1. Check if folder exists
+    # folder = f"/home/logs/{date}"
+    folder = f"{ROOT_DIR}{date}"
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+
+    with open(f"{folder}/{time}", "a") as f:
+        f.write('\n'.join(logs))
 
 
 def verification(master: str, timestamp: str) -> list:
@@ -96,35 +95,34 @@ def verification(master: str, timestamp: str) -> list:
         output:    list, a list of strings generated from the verification process.
     '''
 
-    print(f"{timestamp} Start verification process.")
+    messages: list[str] = []
+
+    messages.append(f"{timestamp} Start verification process.")
 
     # 1. Extract absolute paths to directories from given configuration file
-    print(f"{timestamp} Extracting paths in configuration file.")
-    total = 0
+    messages.append(f"{timestamp} Extracting paths in configuration file.")
     dirs = []
     with open(master + "config.txt", "r") as f:
         line = f.readline()[:-1]
         while line:
             if is_valid_dirpath(line):
-                total += 1
                 dirs.append(line)
             line = f.readline()[:-1]
-    print(f"Total directories to check: {total}")
+    messages.append(f"Total directories to check: {len(dirs)}")
 
     # 2. Check if directories exist
-    print(f"{timestamp} Checking if directories exists.")
+    messages.append(f"{timestamp} Checking if directories exists.")
     i = 0
     while i < len(dirs):
         if os.path.exists(dirs[i]):
-            print(f"{dirs[i]} found!")
+            messages.append(f"{dirs[i]} found!")
         else:
-            print(f"{dirs[i]} NOT found!")
+            messages.append(f"{dirs[i]} NOT found!")
         i += 1
 
     # 3. Extract all absolute paths of all files form given configuration file
-    print(f"{timestamp} Extracting files in configuration file.")
+    messages.append(f"{timestamp} Extracting files in configuration file.")
     i = 0
-    total = 0
     current_folder = ""
     abs_files_list = []
     with open(master + "config.txt", "r") as f:
@@ -132,26 +130,25 @@ def verification(master: str, timestamp: str) -> list:
         while line:
             if is_valid_dirpath(line):
                 current_folder = line
-                total += 1
             elif is_valid_filepath(line):
                 abs_path = f"{current_folder}{line[2:]}"
                 abs_files_list.append(abs_path)
-                print(f"File to check: {abs_path}")
+                messages.append(f"File to check: {len(abs_files_list)}")
             line = f.readline()[:-1]
-        print(f"Total files to check: {total}")
+        messages.append(f"Total files to check: {len(abs_files_list)}")
 
     # 4. Check if files exists
-    print(f"{timestamp} Check if files exists.")
+    messages.append(f"{timestamp} Check if files exists.")
     i = 0
     while i < len(abs_files_list):
         if os.path.exists(abs_files_list[i]):
-            print(f"{abs_files_list[i]} found!")
+            messages.append(f"{abs_files_list[i]} found!")
         else:
-            print(f"{abs_files_list[i]} NOT found!")
+            messages.append(f"{abs_files_list[i]} NOT found!")
         i += 1
 
     # 5. check contents of each file with those in the master folder
-    print(f"{timestamp} Checking contents with master copy.")
+    messages.append(f"{timestamp} Checking contents with master copy.")
     i = 0
     while i < len(abs_files_list):
         subfolder, filename = abs_files_list[i].split('/')[-2:]
@@ -163,14 +160,16 @@ def verification(master: str, timestamp: str) -> list:
             with open(src_file, 'r') as f:
                 src = f.read()
         except:
-            print("abnormalities detected...")
-            return []
+            messages.append("abnormalities detected...")
+            return messages
         if target == src:
-            print(f"{target_file} is same as {src_file}: True")
+            messages.append(f"{target_file} is same as {src_file}: True")
         else:
-            print(f"{target_file} is same as {src_file}: False")
-            return []
+            messages.append(f"{target_file} is same as {src_file}: False")
+            return messages
         i += 1
+
+    return messages
 
 
 def installation(master: str, timestamp: str) -> list:
@@ -184,10 +183,12 @@ def installation(master: str, timestamp: str) -> list:
         output:    list, a list of strings generated from the installation process.
     '''
 
-    print(f"{timestamp} Start installation process.")
+    messages: list[str] = []
+
+    messages.append(f"{timestamp} Start installation process.")
 
     # 1. Extract absolute paths to directories from given configuration file.
-    print(f"{timestamp} Extracting paths in configuration file.")
+    messages.append(f"{timestamp} Extracting paths in configuration file.")
     total = 0
     dirs = []
     with open(master + "config.txt", "r") as f:
@@ -197,21 +198,21 @@ def installation(master: str, timestamp: str) -> list:
                 total += 1
                 dirs.append(line)
             line = f.readline()[:-1]
-    print(f"Total directories to create: {total}")
+    messages.append(f"Total directories to create: {total}")
 
     # 2. Create new directories
-    print(f"{timestamp} Creat new directories.")
+    messages.append(f"{timestamp} Creat new directories.")
     i = 0
     while i < len(dirs):
         if not os.path.exists(dirs[i]):
             os.makedirs(dirs[i])
-            print(f"{dirs[i]} is created successfully.")
+            messages.append(f"{dirs[i]} is created successfully.")
         else:
-            print(f"{dirs[i]} exists. Skip directory creation.")
+            messages.append(f"{dirs[i]} exists. Skip directory creation.")
         i += 1
 
     # 3. Extract all absolute paths of files found in the 'master' directory
-    print(f"{timestamp} Extracting path of all files in {master}.")
+    messages.append(f"{timestamp} Extracting path of all files in {master}.")
     current_folder = ""
     abs_files = []
     with open(master + "config.txt", "r") as f:
@@ -220,38 +221,68 @@ def installation(master: str, timestamp: str) -> list:
             if is_valid_dirpath(line):
                 current_folder = line
             elif is_valid_filepath(line) and current_folder:
-                print(f"Found: {current_folder + line[2:]}")
+                messages.append(f"Found: {current_folder + line[2:]}")
                 abs_files.append(current_folder + line[2:])
             line = f.readline()[:-1]
 
     # 4. Create new files
-    print(f"{timestamp} Create new files.")
+    messages.append(f"{timestamp} Create new files.")
     i = 0
     while i < len(abs_files):
         if not os.path.exists(abs_files[i]):
-            print(f"Creating file: {abs_files[i]}")
+            messages.append(f"Creating file: {abs_files[i]}")
             f = open(abs_files[i], 'w')
             f.close()
         i += 1
 
     # 5. Copy files from 'master' directory accordingly
-    print(f"{timestamp} Copying new files.")
+    messages.append(f"{timestamp} Copying new files.")
     i = 0
     while i < len(abs_files):
         subfolder, filename = abs_files[i].split('/')[-2:]
         origin = f"{master}{subfolder}/{filename}"
-        print(f"Locating: {filename}")
+        messages.append(f"Locating: {filename}")
         try:
             copy(origin, abs_files[i])
-            print(f"Original path: {origin}")
+            messages.append(f"Original path: {origin}")
         except FileNotFoundError:
-            print(f"Original path: {origin} is not found.")
-            return []
-        print(f"Destination path: {abs_files[i]}")
+            messages.append(f"Original path: {origin} is not found.")
+            return messages
+        messages.append(f"Destination path: {abs_files[i]}")
         i += 1
 
-    print(f"{timestamp} Installation complete.")
-    return []
+    messages.append(f"{timestamp} Installation complete.")
+    return messages
+
+
+def is_valid_flag(flags: str):
+    if len(flags) > 3:
+        return False
+    elif len(flags) == 3:
+        if flags[1] == flags[2]:
+            return False
+
+    if not flags.startswith('-'):
+        return False
+
+    # remove the '-'
+    flags = flags[1:]
+
+    i = 0
+    switch = False
+    while i < len(flags):
+        if flags[i] != 'i' and flags[i] != 'v' and flags[i] != 'l':
+            return False
+        elif flags[i] == 'i' or flags[i] == 'v':
+            switch = not switch
+        i += 1
+    if not switch:
+        return False
+
+    if len(flags) == 1 and flags[0] == 'l':
+        return False
+
+    return True
 
 
 def main(master: str, flags: str, timestamp: str):
@@ -265,15 +296,44 @@ def main(master: str, flags: str, timestamp: str):
         timestamp: str, a string representing the time to insert into the output.
                     in the format: DD MMM YYYY HH:MM:DD , ex: 10 Apr 2023 12:44:17
     '''
-    pass
+
+    if not is_valid_dirpath(master):
+        print("Invalid master directory.")
+        return
+
+    if not is_valid_flag(flags):
+        print("Invalid flag.")
+        return
+
+    # flag if log is needed
+    need_log = False
+    logs = []
+    i = 0
+    while i < len(flags):
+        if flags[i] == 'i':
+            logs = installation(master, timestamp)
+            print('\n'.join(logs))
+        elif flags[i] == 'v':
+            logs = verification(master, timestamp)
+            print('\n'.join(logs))
+        elif flags[i] == 'l':
+            need_log = True
+        i += 1
+
+    if need_log and logs:
+        date_str = datetime.strptime(timestamp, "%d %b %Y %H:%M:%S ").strftime("%Y_%m_%d")
+        time_str = datetime.strptime(timestamp, "%d %b %Y %H:%M:%S ").strftime("%H_%M_%S")
+        logging(logs, date_str, time_str)
 
 
 if __name__ == "__main__":
     # you will need to pass in some arguments here
     # we will leave this empty for you to handle the implementation
+    if len(sys.argv) < 2:
+        print("Insufficient arguments.")
+        exit()
 
     # define the timestamp
     timestamp = datetime.now().strftime("%d %b %Y %H:%M:%S ")
-    # main()
-    # installation(ROOT_DIR + "master/", timestamp)
-    verification(ROOT_DIR + "master/", timestamp)
+
+    main(sys.argv[1], sys.argv[2], timestamp)
