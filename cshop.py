@@ -50,16 +50,17 @@ class CheeseShop:
             print("Invalid argument!\nThe argument gold should be an integer.")
             return gold, tuple(bought.values())
 
-        print(f"You have {gold} gold to spend.")
         while True:
+            print(f"You have {gold} gold to spend.")
+
             player_request: list = input("State [cheese quantity]: ").split()
             if len(player_request) == 0:
                 print("Invalid input.")
                 continue
 
-            cheese_name = player_request[0]
+            cheese_name = player_request[0].strip().lower()
 
-            if cheese_name.strip().lower() == "back":
+            if cheese_name == "back":
                 return gold, tuple(bought.values())
 
             if not cheese_name.isalpha() or (

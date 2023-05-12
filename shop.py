@@ -13,6 +13,16 @@ CHEESE_MENU = (("Cheddar", 10), ("Marble", 50), ("Swiss", 100))
 # you can make more functions or global read-only variables here if you please!
 
 
+def greet():
+    greets = [
+        "Welcome to the Cheese Shop!",
+        f"{CHEESE_MENU[0][0]} - {CHEESE_MENU[0][1]}",
+        f"{CHEESE_MENU[1][0]} - {CHEESE_MENU[1][1]}",
+        f"{CHEESE_MENU[2][0]} - {CHEESE_MENU[2][1]}",
+    ]
+    print("\n".join(greets) + "\n")
+
+
 def get_shop_menu():
     menu = [
         "How can I help ye?",
@@ -33,92 +43,74 @@ def buy_cheese(gold: int) -> tuple:
         cheese_bought:  tuple,  amount of each type of cheese bought
     """
 
-    gold_used_final = 0
+    if not isinstance(gold, int):
+        print("Invalid argument!\nThe argument gold must be an integer.")
+        return 0, (0, 0, 0)
+
+    gold_used = 0
     cheese_bought = (0, 0, 0)
-    cheddar, marble, swiss = cheese_bought
+
     while True:
-        gold_used = 0
         print(f"You have {gold} gold to spend.")
-        pl_cheese_input = input("State [cheese quantity]: ")
-
-        if pl_cheese_input[0].isalpha():
-            pl_cheese_input = pl_cheese_input.lower()
-        else:
+        pl_cheese_input = input("State [cheese quantity]: ").split()
+        if len(pl_cheese_input) == 0:
             print("Invalid command.")
+            continue
 
-        if pl_cheese_input.startswith("cheddar "):
-            number_of_cheese = pl_cheese_input.split()[1]
-            if number_of_cheese != "":
-                if number_of_cheese.isdigit():
-                    integer_of_cheese = int(number_of_cheese)
-                    if integer_of_cheese > 0:
-                        if gold >= 10 * integer_of_cheese:
-                            cheddar += integer_of_cheese
-                            cheese_bought = (cheddar, marble, swiss)
-                            gold_used += 10 * integer_of_cheese
-                            gold_used_final += gold_used
-                            gold -= gold_used
-                            print(f"Successfully purchase {integer_of_cheese} cheddar.")
-                            continue
-                        else:
-                            print("Insufficient gold.")
-                    else:
-                        print("Must purchase positive amount of cheese.")
-                else:
-                    print("Invalid quantity.")
-            else:
-                print("Missing quantity.")
+        cheese_name = pl_cheese_input[0].strip().lower()
+        if cheese_name == "back":
+            break
 
-        elif pl_cheese_input.startswith("marble "):
-            number_of_cheese = pl_cheese_input.split(" ")[1]
-            if number_of_cheese != "":
-                if number_of_cheese.isdigit():
-                    integer_of_cheese = int(number_of_cheese)
-                    if integer_of_cheese > 0:
-                        if gold >= 50 * integer_of_cheese:
-                            marble += integer_of_cheese
-                            cheese_bought = (cheddar, marble, swiss)
-                            gold_used += 50 * integer_of_cheese
-                            gold_used_final += gold_used
-                            gold -= gold_used
-                            print(f"Successfully purchase {integer_of_cheese} marble.")
-                            continue
-                        else:
-                            print("Insufficient gold.")
-                    else:
-                        print("Must purchase positive amount of cheese.")
-                else:
-                    print("Invalid quantity.")
-            else:
-                print("Missing quantity.")
+        if not cheese_name[0].isalpha() or (
+            cheese_name != "cheddar" and cheese_name != "marble" and cheese_name != "swiss"
+        ):
+            print(f"We don't sell {cheese_name}")
+            continue
 
-        elif pl_cheese_input.startswith("swiss "):
-            number_of_cheese = pl_cheese_input.split(" ")[1]
-            if number_of_cheese != "":
-                if number_of_cheese.isdigit():
-                    integer_of_cheese = int(number_of_cheese)
-                    if integer_of_cheese > 0:
-                        if gold >= 100 * integer_of_cheese:
-                            swiss += integer_of_cheese
-                            cheese_bought = (cheddar, marble, swiss)
-                            gold_used += 100 * integer_of_cheese
-                            gold_used_final += gold_used
-                            gold -= gold_used
-                            print(f"Successfully purchase {integer_of_cheese} swiss.")
-                            continue
-                        else:
-                            print("Insufficient gold.")
-                    else:
-                        print("Must purchase positive amount of cheese.")
-                else:
-                    print("Invalid quantity.")
-            else:
-                print("Missing quantity.")
-
-        elif pl_cheese_input == "back":
-            return (gold_used_final, cheese_bought)
+        if len(pl_cheese_input) == 1:
+            print("Missing quantity.")
+            continue
         else:
-            print(f"We don't sell {pl_cheese_input.split(' ')[0]}!")
+            quantity = pl_cheese_input[1]
+
+        if not quantity.isdigit():
+            print("Invalid quantity.")
+            continue
+        elif int(quantity) <= 0:
+            print("Must purchase positive amount of cheese.")
+            continue
+        else:
+            quantity = int(quantity)
+
+        if cheese_name == "cheddar":
+            if gold >= 10 * quantity:
+                cheese_bought = (cheese_bought[0] + quantity, cheese_bought[1], cheese_bought[2])
+                gold_used += 10 * quantity
+                gold -= 10 * quantity
+                print(f"Successfully purchase {quantity} cheddar.")
+            else:
+                print("Insufficient gold.")
+                continue
+        elif cheese_name == "marble":
+            if gold >= 50 * quantity:
+                cheese_bought = (cheese_bought[0], cheese_bought[1] + quantity, cheese_bought[2])
+                gold_used += 50 * quantity
+                gold -= 50 * quantity
+                print(f"Successfully purchase {quantity} marble.")
+            else:
+                print("Insufficient gold.")
+                continue
+        elif cheese_name == "swiss":
+            if gold >= 100 * quantity:
+                cheese_bought = (cheese_bought[0], cheese_bought[1], cheese_bought[2] + quantity)
+                gold_used += 100 * quantity
+                gold -= 100 * quantity
+                print(f"Successfully purchase {quantity} swiss.")
+            else:
+                print("Insufficient gold.")
+                continue
+
+    return gold_used, cheese_bought
 
 
 def display_inventory(trap: str, gold: int, cheese: list) -> None:
@@ -139,55 +131,55 @@ def display_inventory(trap: str, gold: int, cheese: list) -> None:
     print(f"Trap - {trap}")
 
 
-def shop_function():
-    gold = 125
-    gold_used = 0
-    cheese = [("cheddar", 0), ("marble", 0), ("swiss", 0)]
-    trap = "Cardboard and Hook Trap"
-    print(
-        "Welcome to The Cheese Shop!",
-        "Cheddar - 10 gold",
-        "Marble - 50 gold",
-        "Swiss - 100 gold",
-        sep="\n",
-    )
-    cheddar, marble, swiss = cheese
-    cheddar_num = cheddar[1]
-    marble_num = marble[1]
-    swiss_num = swiss[1]
+def shop(trap: str, gold: int, cheese: list[tuple, tuple, tuple]) -> tuple[int, list]:
+    """
+    shop function
+    :param trap: trap name
+    :type trap: str
+    :param gold: amount of gold player has when entering shop
+    :type gold: int
+    :param cheese: number different types of cheese player has
+    :type cheese: list[tuple, tuple, tuple]
+    :return: amount of money left after shopping and the updated cheese numbers
+    :rtype: tuple[int, list]
+    """
+    # gold = 125
+    # gold_used = 0
+    # cheese = [("cheddar", 0), ("marble", 0), ("swiss", 0)]
+    # trap = "Cardboard and Hook Trap"
+
+    # 1. greet
+    greet()
+
     while True:
-        print("")
-        intro = shopintro()
-        if intro == "1":
-            buyingcheese = buy_cheese(gold)
-            gold_used = buyingcheese[0]
-            cheese_bought = buyingcheese[1]
-            cheddar, marble, swiss = cheese
-            cheddar_num += cheese_bought[0]
-            marble_num += cheese_bought[1]
-            swiss_num += cheese_bought[2]
+        # 2. display the menu
+        print(get_shop_menu())
+        player_input = input("")
+        # 3. buy cheese
+        if player_input == "1":
+            gold_used, cheese_bought = buy_cheese(gold)
             gold -= gold_used
             cheese = [
-                ("cheddar", cheddar_num),
-                ("marble", marble_num),
-                ("swiss", swiss_num),
+                ("Cheddar", cheese[0][1] + cheese_bought[0]),
+                ("Marble", cheese[1][1] + cheese_bought[1]),
+                ("Swiss", cheese[2][1] + cheese_bought[2]),
             ]
-        elif intro == "2":
-            display = display_inventory(trap, gold, cheese)
-        elif intro == "3":
-            # print('Thank you for visiting The Cheese Shop!')
-            return gold_used, cheese
+        # 4. view inventory
+        elif player_input == "2":
+            display_inventory(trap, gold, cheese)
+        # 5. leave shop
+        elif player_input == "3":
+            break
         else:
             print("I did not understand.")
-
-
-def shop():
-    pass
+    return gold, cheese
 
 
 def main():
-    game_shop = shop_function()
-    # print(game_shop)
+    trap = "Cardboard and Hook Trap"
+    gold = 125
+    cheese = [("cheddar", 0), ("marble", 0), ("swiss", 0)]
+    shop(trap, gold, cheese)
 
 
 if __name__ == "__main__":

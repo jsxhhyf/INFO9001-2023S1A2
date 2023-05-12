@@ -1,24 +1,18 @@
-'''
+"""
 Answer for Question 5. Kids' Friendly.
 
 Author:
 SID:
 Unikey:
-'''
+"""
 
 import os
 
 # you can make more functions or global read-only variables here if you please!
 
-'''
+"""
 This part should be your solution from Assignment 1, 3. Functions.
-'''
-
-
-def player_name():
-    # Name input
-    player_input = input("What's ye name, Hunter?\n")
-    return player_input
+"""
 
 
 def is_valid_length(name: str) -> bool:
@@ -32,17 +26,21 @@ def is_valid_start(name: str) -> bool:
 def is_one_word(name: str) -> bool:
     i = 0
     while i < len(name):
-        if name[i] == ' ':
+        if name[i] == " ":
             return False
         i += 1
     return True
+
+
+def is_valid_name_a1(name: str) -> bool:
+    return is_valid_length(name) and is_valid_start(name) and is_one_word(name)
 
 
 def is_valid_name(name: str) -> bool:
     return is_valid_length(name) and is_valid_start(name) and is_one_word(name) and not is_profanity(name)
 
 
-def is_profanity(word: str, database='files/list.txt', records='files/history.txt') -> bool:
+def is_profanity(word: str, database="files/list.txt", records="files/history.txt") -> bool:
     """
     Checks if `word` is listed in the blacklist `database`.
     Parameters:
@@ -58,14 +56,14 @@ def is_profanity(word: str, database='files/list.txt', records='files/history.tx
         print("Check directory of database!")
         return False
 
-    with open(database, 'r') as f:
-        bad_names = f.read().split('\n')
+    with open(database, "r") as f:
+        bad_names = f.read().split("\n")
 
     i = 0
     while i < len(bad_names):
         if word.strip().lower() == bad_names[i]:
-            with open(records, 'a') as f:
-                f.write(bad_names[i] + '\n')
+            with open(records, "a") as f:
+                f.write(bad_names[i] + "\n")
             return True
         i += 1
 
@@ -93,8 +91,8 @@ def count_occurrence(word: str, file_records="/home/files/history.txt", start_fl
         print("File records not found!")
         return 0
 
-    with open(file_records, 'r') as f:
-        word_list = f.read().split('\n')[:-1]
+    with open(file_records, "r") as f:
+        word_list = f.read().split("\n")[:-1]
 
     count = 0
     i = 0
@@ -139,12 +137,12 @@ def generate_name(word: str, src="files/animals.txt", past="files/names.txt") ->
     last_replaced_word = ""
     found_last_word = False
 
-    with open(src, 'r') as f:
-        replace_names = f.read().split('\n')[:-1]
+    with open(src, "r") as f:
+        replace_names = f.read().split("\n")[:-1]
 
     if os.path.exists(past):
-        with open(past, 'r') as f:
-            past_names = f.read().split('\n')[:-1]
+        with open(past, "r") as f:
+            past_names = f.read().split("\n")[:-1]
 
         # get the last replaced word with the same initial
         idx = len(past_names) - 1
@@ -161,8 +159,8 @@ def generate_name(word: str, src="files/animals.txt", past="files/names.txt") ->
         if replace_names[i].strip().lower().startswith(word.strip().lower()[0]):
             if found_last_word:
                 new_name = replace_names[i]
-                with open(past, 'a') as f:
-                    f.write(new_name + '\n')
+                with open(past, "a") as f:
+                    f.write(new_name + "\n")
                 break
             if replace_names[i].strip().lower() == last_replaced_word:
                 found_last_word = True
@@ -175,8 +173,8 @@ def generate_name(word: str, src="files/animals.txt", past="files/names.txt") ->
         while i < len(replace_names):
             if replace_names[i].strip().lower().startswith(word.strip().lower()[0]):
                 new_name = replace_names[i]
-                with open(past, 'a') as f:
-                    f.write(new_name + '\n')
+                with open(past, "a") as f:
+                    f.write(new_name + "\n")
                 break
             i += 1
     return new_name

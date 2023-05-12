@@ -116,6 +116,8 @@ class Interface:
                 pl_continue = input("Do you want to continue the hunt? ").strip().lower()
                 if pl_continue != "yes":
                     break
+                else:
+                    num_fails = 0
             print("Sound the horn to call for the mouse...")
             pl_horn_input = input('Sound the horn by typing "yes": ').strip().lower()
             print("")
