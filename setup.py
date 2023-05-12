@@ -80,6 +80,7 @@ def logging(logs: list, date: str, time: str) -> None:
     if not os.path.exists(folder):
         os.makedirs(folder)
 
+    # 2. Write messages to the log file
     with open(f"{folder}/{time}", "a") as f:
         f.write('\n'.join(logs))
 
@@ -118,6 +119,8 @@ def verification(master: str, timestamp: str) -> list:
             messages.append(f"{dirs[i]} found!")
         else:
             messages.append(f"{dirs[i]} NOT found!")
+            messages.append("Abnormalities detected...")
+            return messages
         i += 1
 
     # 3. Extract all absolute paths of all files form given configuration file
@@ -145,6 +148,8 @@ def verification(master: str, timestamp: str) -> list:
             messages.append(f"{abs_files_list[i]} found!")
         else:
             messages.append(f"{abs_files_list[i]} NOT found!")
+            messages.append("Abnormalities detected...")
+            return messages
         i += 1
 
     # 5. check contents of each file with those in the master folder
@@ -160,14 +165,17 @@ def verification(master: str, timestamp: str) -> list:
             with open(src_file, 'r') as f:
                 src = f.read()
         except:
-            messages.append("abnormalities detected...")
+            messages.append("Abnormalities detected...")
             return messages
         if target == src:
             messages.append(f"{target_file} is same as {src_file}: True")
         else:
             messages.append(f"{target_file} is same as {src_file}: False")
+            messages.append("Abnormalities detected...")
             return messages
         i += 1
+
+    messages.append(f"{timestamp} Verification complete.")
 
     return messages
 
@@ -258,9 +266,6 @@ def installation(master: str, timestamp: str) -> list:
 def is_valid_flag(flags: str):
     if len(flags) > 3:
         return False
-    elif len(flags) == 3:
-        if flags[1] == flags[2]:
-            return False
 
     if not flags.startswith('-'):
         return False
@@ -271,15 +276,14 @@ def is_valid_flag(flags: str):
     i = 0
     switch = False
     while i < len(flags):
+        # if any character is not [i, v, l]
         if flags[i] != 'i' and flags[i] != 'v' and flags[i] != 'l':
             return False
+        # i or v must appear once and only once
         elif flags[i] == 'i' or flags[i] == 'v':
             switch = not switch
         i += 1
     if not switch:
-        return False
-
-    if len(flags) == 1 and flags[0] == 'l':
         return False
 
     return True
@@ -336,4 +340,7 @@ if __name__ == "__main__":
     # define the timestamp
     timestamp = datetime.now().strftime("%d %b %Y %H:%M:%S ")
 
-    main(sys.argv[1], sys.argv[2], timestamp)
+    if len(sys.argv) == 2:
+        main(sys.argv[1], '-i', timestamp)
+    elif len(sys.argv) > 2:
+        main(sys.argv[1], sys.argv[2], timestamp)

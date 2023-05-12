@@ -8,3 +8,6 @@
   - add argument parser
   - modify the logic of displaying number folders and files in config.txt
   - add an is_valid_flag() function to check if the user-input flag is valid
+
+- 11/05/2023 Thu 21:00 - 12:00 (3h)
+  - implement 8 - Game Redux OO (no finished)

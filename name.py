@@ -42,7 +42,7 @@ def is_valid_name(name: str) -> bool:
     return is_valid_length(name) and is_valid_start(name) and is_one_word(name) and not is_profanity(name)
 
 
-def is_profanity(word: str, database='/home/files/list.txt', records='/home/files/history.txt') -> bool:
+def is_profanity(word: str, database='files/list.txt', records='files/history.txt') -> bool:
     """
     Checks if `word` is listed in the blacklist `database`.
     Parameters:
@@ -81,7 +81,7 @@ def count_occurrence(word: str, file_records="/home/files/history.txt", start_fl
     Returns:
         count:        int, total number of times `word` is found in the file.
     """
-    if not isinstance(word, str):
+    if not isinstance(word, str) or not word[0].isalpha():
         print("First argument must be a string object!")
         return 0
 
@@ -121,6 +121,19 @@ def generate_name(word: str, src="files/animals.txt", past="files/names.txt") ->
     Returns:
         new_name: str, the generated name to replace word
     """
+
+    # some validations
+    if not isinstance(word, str) or not word[0].isalpha():
+        print("First argument must be a string object!")
+        return "Bob"
+
+    if len(word) == 0:
+        print("Must have at least one character in the string!")
+        return "Bob"
+
+    if not os.path.exists(src):
+        print("Source file not found!")
+        return "Bob"
 
     new_name = ""
     last_replaced_word = ""
